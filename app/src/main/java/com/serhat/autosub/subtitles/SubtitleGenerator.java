@@ -904,7 +904,7 @@ public class SubtitleGenerator {
     private void writeSrtSubtitles(List<SubtitleEntry> subtitles, FileOutputStream fos) throws IOException {
         try (Writer writer = new OutputStreamWriter(fos, StandardCharsets.UTF_8)) {
             for (SubtitleEntry entry : subtitles) {
-                writer.write(String.format("%d\n%s --> %s\n%s\n\n",
+                writer.write(String.format(Locale.US, "%d\n%s --> %s\n%s\n\n",
                         entry.getNumber(),
                         entry.getStartTime(),
                         entry.getEndTime(),
@@ -934,7 +934,7 @@ public class SubtitleGenerator {
         long seconds = (timeMs % 60000) / 1000;
         long milliseconds = timeMs % 1000;
 
-        return String.format("%02d:%02d:%02d,%03d", hours, minutes, seconds, milliseconds);
+        return String.format(Locale.US, "%02d:%02d:%02d,%03d", hours, minutes, seconds, milliseconds);
     }
 
     public static class SubtitleEntry {
