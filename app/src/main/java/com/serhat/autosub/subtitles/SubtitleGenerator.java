@@ -1978,19 +1978,18 @@ public class SubtitleGenerator {
             DownloadConditions conditions = new DownloadConditions.Builder().build();
             Tasks.await(translator.downloadModelIfNeeded(conditions));
             for (SubtitleEntry entry : subtitles) {
-    }
+                if (isCancelled) {
+                    break;
+                }
 
-    String text = entry.getText();
+                String text = entry.getText();
+                if (text == null || text.trim().isEmpty()) {
+                    entry.setTranslationText("");
+                    continue;
+                }
 
-    if (text == null || text.trim().isEmpty()) {
-        entry.setTranslationText("");
-        continue;
-    }
-
-    String translatedText =
-            Tasks.await(translator.translate(text.trim()));
-
-    entry.setTranslationText(translatedText);
+                String translatedText = Tasks.await(translator.translate(text.trim()));
+                entry.setTranslationText(translatedText);
             }
         } catch (Exception e) {
             throw new IOException("Subtitle translation failed: "
