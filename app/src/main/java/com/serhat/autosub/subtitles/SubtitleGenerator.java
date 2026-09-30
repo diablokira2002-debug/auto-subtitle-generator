@@ -1977,37 +1977,22 @@ public class SubtitleGenerator {
         try {
             DownloadConditions conditions = new DownloadConditions.Builder().build();
             Tasks.await(translator.downloadModelIfNeeded(conditions));
-            int index = 0;
-            while (index < subtitles.size()) {
-                List<SubtitleEntry> sentenceEntries = new ArrayList<>();
-                StringBuilder sentenceText = new StringBuilder();
+            for (SubtitleEntry entry : subtitles) {
+    if (isCancelled()) {
+        break;
+    }
 
-                while (index < subtitles.size()) {
-                    if (isCancelled) {
-                        break;
-                    }
-                    SubtitleEntry entry = subtitles.get(index++);
-                    String text = entry.getText();
-                    if (text == null || text.trim().isEmpty()) {
-                        continue;
-                    }
-                    if (sentenceText.length() > 0) {
-                        sentenceText.append(" ");
-                    }
-                    sentenceText.append(text.trim());
-                    sentenceEntries.add(entry);
+    String text = entry.getText();
 
-                    if (endsTranslationSentence(text) || sentenceText.length() >= 1200) {
-                        break;
-                    }
-                }
+    if (text == null || text.trim().isEmpty()) {
+        entry.setTranslationText("");
+        continue;
+    }
 
-                if (isCancelled || sentenceEntries.isEmpty()) {
-                    continue;
-                }
+    String translatedText =
+            Tasks.await(translator.translate(text.trim()));
 
-                String translatedText = Tasks.await(translator.translate(sentenceText.toString()));
-                applyTranslatedSentence(sentenceEntries, translatedText);
+    entry.setTranslationText(translatedText);
             }
         } catch (Exception e) {
             throw new IOException("Subtitle translation failed: "
