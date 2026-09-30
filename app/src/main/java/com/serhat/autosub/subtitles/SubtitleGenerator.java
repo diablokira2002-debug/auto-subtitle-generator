@@ -906,8 +906,8 @@ public class SubtitleGenerator {
             for (SubtitleEntry entry : subtitles) {
                 writer.write(String.format(Locale.US, "%d\n%s --> %s\n%s\n\n",
                         entry.getNumber(),
-                        entry.getStartTime(),
-                        entry.getEndTime(),
+                        toAsciiDigits(entry.getStartTime()),
+                        toAsciiDigits(entry.getEndTime()),
                         entry.getText()));
             }
         }
@@ -922,6 +922,15 @@ public class SubtitleGenerator {
                     entry.getText());
             fos.write(vttEntry.getBytes());
         }
+    }
+
+    private static String toAsciiDigits(String value) {
+        if (value == null) return "";
+        return value
+                .replace('٠', '0').replace('١', '1').replace('٢', '2').replace('٣', '3').replace('٤', '4')
+                .replace('٥', '5').replace('٦', '6').replace('٧', '7').replace('٨', '8').replace('٩', '9')
+                .replace('۰', '0').replace('۱', '1').replace('۲', '2').replace('۳', '3').replace('۴', '4')
+                .replace('۵', '5').replace('۶', '6').replace('۷', '7').replace('۸', '8').replace('۹', '9');
     }
 
     private String formatTimeVtt(String time) {
@@ -1977,6 +1986,7 @@ public class SubtitleGenerator {
         try {
             DownloadConditions conditions = new DownloadConditions.Builder().build();
             Tasks.await(translator.downloadModelIfNeeded(conditions));
+
             for (SubtitleEntry entry : subtitles) {
                 if (isCancelled) {
                     break;
@@ -1989,7 +1999,7 @@ public class SubtitleGenerator {
                 }
 
                 String translatedText = Tasks.await(translator.translate(text.trim()));
-                entry.setTranslationText(translatedText);
+                entry.setTranslationText(translatedText == null ? "" : translatedText.trim());
             }
         } catch (Exception e) {
             throw new IOException("Subtitle translation failed: "
