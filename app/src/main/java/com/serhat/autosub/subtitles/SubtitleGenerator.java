@@ -1978,8 +1978,6 @@ public class SubtitleGenerator {
             DownloadConditions conditions = new DownloadConditions.Builder().build();
             Tasks.await(translator.downloadModelIfNeeded(conditions));
             for (SubtitleEntry entry : subtitles) {
-    if (isCancelled()) {
-        break;
     }
 
     String text = entry.getText();
